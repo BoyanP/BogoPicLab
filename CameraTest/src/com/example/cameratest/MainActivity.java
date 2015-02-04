@@ -14,17 +14,24 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	Uri imageFileUri;
-
+	private Uri imageFileUri;
+	private TextView tv;
+	private ImageButton button;
+	int check = 0;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		ImageButton button = (ImageButton) findViewById(R.id.TakeAPhoto);
+		
+		tv = (TextView) findViewById(R.id.status);
+		
+		button = (ImageButton) findViewById(R.id.TakeAPhoto);
 		OnClickListener listener = new OnClickListener() {
 			public void onClick(View v) {
 				takeAPhoto();
@@ -59,12 +66,20 @@ public class MainActivity extends Activity {
 			folderF.mkdir();
 		}
 
+		
+		
+		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		
+		
 		// Create an URI for the picture file
 		String imageFilePath = folder + "/"
 				+ String.valueOf(System.currentTimeMillis()) + ".jpg";
 		File imageFile = new File(imageFilePath);
 		imageFileUri = Uri.fromFile(imageFile);
-
+		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageFileUri);
+		
+		startActivityForResult(cameraIntent,CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+		
 		// TODO: Put in the intent in the tag MediaStore.EXTRA_OUTPUT the URI
 		
 		// TODO: Start the activity (expecting a result), with the code
@@ -82,6 +97,28 @@ public class MainActivity extends Activity {
 		//		button.setImageDrawable(Drawable.createFromPath(imageFileUri.getPath()));
 		// When the result is CANCELLED, set text "Photo canceled" in the status
 		// Otherwise, set text "Not sure what happened!" with the resultCode
+	
+		
+		if(requestCode ==CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE){
+			if(resultCode ==RESULT_OK){
+				tv.setText("Result: ok");
+				button.setImageDrawable(Drawable.createFromPath(imageFileUri.getPath()));
+				//Toast.makeText(getApplicationContext(),"Your picture has arrived",Toast.LENGTH_SHORT).show();
+				
+			}
+			if(resultCode ==RESULT_CANCELED){
+				tv.setText("You dun goofed");
+				
+			}else{
+				tv.setText("plz no.");
+				
+			}
+		
+			
+		}
+		
+		
+		
 		
 	}
 }
